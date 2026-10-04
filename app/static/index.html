@@ -1,0 +1,15 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Toomuch3D</title><link rel="stylesheet" href="/static/styles.css"></head><body>
+<header><a href="/" class="brand"><b>T3</b> Toomuch3D</a><span class="ready">● GPU pipeline</span></header>
+<main><section class="hero"><small>IMAGE → MULTI-VIEW → 3D</small><h1>Turn one image into a <em>3D-ready asset.</em></h1><p>Upload a character or object. Toomuch3D generates consistent high-resolution views with Hi3D and prepares them for reconstruction and printing.</p></section>
+<section class="grid"><article class="card"><div class="head"><h2><i>01</i> Source image</h2><span>PNG · JPG · WEBP</span></div>
+<label id="drop" class="drop"><input id="file" type="file" accept="image/png,image/jpeg,image/webp" hidden><img id="preview"><div id="prompt"><strong>↑</strong><b>Drop your image here</b><span>or click to browse</span></div></label>
+<label class="label">Generation mode</label><div class="modes"><button class="active" data-mode="object">Object<small>Products & props</small></button><button data-mode="character">Character<small>Figures & people</small></button><button data-mode="3d-print">3D Print<small>Printable workflow</small></button></div>
+<div id="print" class="print hidden"><div><label>Target height</label><span><b id="mm">100</b> mm</span></div><input id="height" type="range" min="20" max="300" value="100"><p>✓ Flat base &nbsp; ✓ Watertight repair <small>Stage 3</small></p></div>
+<button id="generate" class="generate" disabled><span>Generate 3D</span><b>→</b></button></article>
+<article class="card output"><div class="head"><h2><i>02</i> Generation</h2><span id="badge">WAITING</span></div>
+<div id="empty" class="state"><div class="orb">T3</div><h3>Your model will appear here</h3><p>Upload an image and start generation. High-resolution views will be prepared for reconstruction.</p></div>
+<div id="working" class="state hidden"><div class="scanner"><b>T3</b><i></i></div><h3 id="workTitle">Preparing image…</h3><p id="message">Starting generation pipeline.</p><div class="bar"><i id="progress"></i></div><div class="steps"><b>Input</b> → <b>Multi-view</b> → <span>Reconstruct</span> → <span>Export</span></div></div>
+<div id="done" class="state hidden"><div class="check">✓</div><h3>Multi-view generation complete</h3><p>Hi3D output is ready. Stage 3 will convert these views into an interactive mesh.</p><div class="viewer"><b>3D</b><span>Mesh viewer connects in Stage 3</span></div></div>
+</article></section>
+<section class="flow"><small>PIPELINE</small><b>01 Upload</b><i>→</i><b>02 Hi3D views</b><i>→</i><span>03 Reconstruction</span><i>→</i><span>04 GLB · STL · 3MF</span></section></main>
+<footer>Toomuch3D · Built on Hi3D · Stage 2 MVP</footer><script src="/static/app.js"></script></body></html>
