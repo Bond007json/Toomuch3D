@@ -39,4 +39,8 @@ Hi3D-Official is MIT licensed. See `THIRD_PARTY_NOTICES.md` and `licenses/Hi3D-M
 
 ## Status
 
-Milestone 1: application scaffold + Hi3D adapter.
+Milestone 2: browser upload workspace + asynchronous Hi3D generation flow.
+
+### Browser UI
+
+Run the API and open `http://127.0.0.1:8000/` to use the Toomuch3D workspace. It includes drag-and-drop upload, Object/Character/3D Print modes, live job polling, pipeline progress, and a Stage 3 reconstruction/viewer placeholder.
