@@ -8,5 +8,7 @@ class Settings(BaseSettings):
     second_stage_checkpoint: Path = Path("/opt/Hi3D-Official/ckpts/second_stage.pt")
     cuda_device: int = 0
     data_dir: Path = Path("./data")
+    reconstruction_command: str | None = None
+    reconstruction_timeout: int = 1800
 
 settings = Settings()
