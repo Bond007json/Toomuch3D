@@ -9,7 +9,7 @@
 <article class="card output"><div class="head"><h2><i>02</i> Generation</h2><span id="badge">WAITING</span></div>
 <div id="empty" class="state"><div class="orb">T3</div><h3>Your model will appear here</h3><p>Upload an image and start generation. High-resolution views will be prepared for reconstruction.</p></div>
 <div id="working" class="state hidden"><div class="scanner"><b>T3</b><i></i></div><h3 id="workTitle">Preparing image…</h3><p id="message">Starting generation pipeline.</p><div class="bar"><i id="progress"></i></div><div class="steps"><b>Input</b> → <b>Multi-view</b> → <span>Reconstruct</span> → <span>Export</span></div></div>
-<div id="done" class="state hidden"><div class="check">✓</div><h3>Multi-view generation complete</h3><p>Hi3D output is ready. Stage 3 will convert these views into an interactive mesh.</p><div class="viewer"><b>3D</b><span>Mesh viewer connects in Stage 3</span></div></div>
+<div id="done" class="state hidden"><div class="check">✓</div><h3>Multi-view generation complete</h3><p>Hi3D output is ready. Stage 3 will convert these views into an interactive mesh.</p><div class="viewer"><b>3D</b><span id="meshStatus">Views ready for reconstruction</span></div><button id="reconstruct" class="generate">Build 3D Mesh <b>→</b></button><a id="downloadMesh" class="generate hidden" href="#">Download Mesh <b>↓</b></a></div>
 </article></section>
 <section class="flow"><small>PIPELINE</small><b>01 Upload</b><i>→</i><b>02 Hi3D views</b><i>→</i><span>03 Reconstruction</span><i>→</i><span>04 GLB · STL · 3MF</span></section></main>
 <footer>Toomuch3D · Built on Hi3D · Stage 2 MVP</footer><script src="/static/app.js"></script></body></html>
