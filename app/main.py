@@ -9,9 +9,11 @@ from fastapi.staticfiles import StaticFiles
 from app.config import settings
 from app.models import GenerationMode, JobResponse, JobStatus
 from app.services.hi3d import Hi3DEngine, Hi3DError
+from app.services.reconstruction import ReconstructionEngine, ReconstructionError
 
 app = FastAPI(title="Toomuch3D API", version="0.3.0")
 engine = Hi3DEngine()
+reconstructor = ReconstructionEngine()
 jobs: dict[str, JobResponse] = {}
 
 static_dir = Path(__file__).resolve().parent / "static"
@@ -39,7 +41,7 @@ def system_status() -> dict:
         "stage1_checkpoint": settings.first_stage_checkpoint.exists(),
         "stage2_checkpoint": settings.second_stage_checkpoint.exists(),
     }
-    return {"ready": all(checks.values()), "checks": checks}
+    return {"ready": all(checks.values()), "checks": checks, "reconstruction_ready": reconstructor.configured}
 
 def run_generation(job_id: str, source: Path, job_dir: Path) -> None:
     job = jobs[job_id]
@@ -80,3 +82,35 @@ def get_job(job_id: str) -> JobResponse:
     if job_id not in jobs:
         raise HTTPException(404, "Job not found")
     return jobs[job_id]
+
+@app.post("/v1/jobs/{job_id}/reconstruct")
+def reconstruct_job(job_id: str, background_tasks: BackgroundTasks) -> dict:
+    if job_id not in jobs:
+        raise HTTPException(404, "Job not found")
+    job = jobs[job_id]
+    if job.status != JobStatus.complete:
+        raise HTTPException(409, "Multi-view generation must complete first.")
+    if not reconstructor.configured:
+        raise HTTPException(503, "Reconstruction backend is not configured.")
+    job_dir = Path(job.output_dir)
+    def run():
+        try:
+            mesh = reconstructor.reconstruct(job_dir / "multiview", job_dir / "mesh")
+            job.message = f"Mesh ready: {mesh.name}"
+        except Exception as exc:
+            job.message = f"Reconstruction failed: {str(exc)[:3000]}"
+    background_tasks.add_task(run)
+    return {"status": "reconstruction_queued", "job_id": job_id}
+
+@app.get("/v1/jobs/{job_id}/mesh")
+def get_mesh(job_id: str):
+    if job_id not in jobs:
+        raise HTTPException(404, "Job not found")
+    mesh_dir = Path(jobs[job_id].output_dir) / "mesh"
+    if not mesh_dir.exists():
+        raise HTTPException(404, "Mesh is not ready")
+    candidates = [p for p in mesh_dir.rglob("*") if p.suffix.lower() in reconstructor.supported_extensions]
+    if not candidates:
+        raise HTTPException(404, "Mesh is not ready")
+    mesh = max(candidates, key=lambda p: p.stat().st_mtime)
+    return FileResponse(mesh, filename=mesh.name)
