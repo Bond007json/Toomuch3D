@@ -7,7 +7,7 @@ from fastapi.responses import FileResponse, HTMLResponse
 from fastapi.staticfiles import StaticFiles
 
 from app.config import settings
-from app.models import GenerationMode, JobResponse, JobStatus
+from app.models import GenerationMode, JobResponse, JobStatus, ReconstructionStatus
 from app.services.hi3d import Hi3DEngine, Hi3DError
 from app.services.reconstruction import ReconstructionEngine, ReconstructionError
 
@@ -92,12 +92,21 @@ def reconstruct_job(job_id: str, background_tasks: BackgroundTasks) -> dict:
         raise HTTPException(409, "Multi-view generation must complete first.")
     if not reconstructor.configured:
         raise HTTPException(503, "Reconstruction backend is not configured.")
+    if job.reconstruction_status in {ReconstructionStatus.queued, ReconstructionStatus.processing}:
+        raise HTTPException(409, "Reconstruction is already running.")
     job_dir = Path(job.output_dir)
+    job.reconstruction_status = ReconstructionStatus.queued
+    job.message = "Reconstruction queued."
     def run():
+        job.reconstruction_status = ReconstructionStatus.processing
+        job.message = "Building 3D mesh..."
         try:
             mesh = reconstructor.reconstruct(job_dir / "multiview", job_dir / "mesh")
+            job.reconstruction_status = ReconstructionStatus.complete
+            job.mesh_name = mesh.name
             job.message = f"Mesh ready: {mesh.name}"
         except Exception as exc:
+            job.reconstruction_status = ReconstructionStatus.failed
             job.message = f"Reconstruction failed: {str(exc)[:3000]}"
     background_tasks.add_task(run)
     return {"status": "reconstruction_queued", "job_id": job_id}
